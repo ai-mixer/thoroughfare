@@ -2,11 +2,11 @@ package template.chat;
 
 import com.google.gson.Gson;
 import org.apache.commons.lang3.StringUtils;
-import org.aimixer.callback.CallbackManager;
-import org.aimixer.prompt.template.chat.HumanMessagePromptTemplate;
-import org.aimixer.prompt.template.chat.SystemMessagePromptTemplate;
-import org.aimixer.tool.BaseTool;
-import org.aimixer.tool.Tool;
+import top.aimixer.callback.CallbackManager;
+import top.aimixer.prompt.template.chat.HumanMessagePromptTemplate;
+import top.aimixer.prompt.template.chat.SystemMessagePromptTemplate;
+import top.aimixer.tool.BaseTool;
+import top.aimixer.tool.Tool;
 
 import java.util.List;
 
