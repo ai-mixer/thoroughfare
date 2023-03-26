@@ -2,11 +2,11 @@ package template.chat;
 
 import com.google.gson.Gson;
 import org.apache.commons.lang3.StringUtils;
-import org.thoroughfare.callback.CallbackManager;
-import org.thoroughfare.prompt.template.chat.HumanMessagePromptTemplate;
-import org.thoroughfare.prompt.template.chat.SystemMessagePromptTemplate;
-import org.thoroughfare.tool.BaseTool;
-import org.thoroughfare.tool.Tool;
+import org.aimixer.callback.CallbackManager;
+import org.aimixer.prompt.template.chat.HumanMessagePromptTemplate;
+import org.aimixer.prompt.template.chat.SystemMessagePromptTemplate;
+import org.aimixer.tool.BaseTool;
+import org.aimixer.tool.Tool;
 
 import java.util.List;
 

@@ -1,6 +1,6 @@
-package org.thoroughfare.tool;
+package org.aimixer.tool;
 
-import org.thoroughfare.callback.BaseCallbackManager;
+import org.aimixer.callback.BaseCallbackManager;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;

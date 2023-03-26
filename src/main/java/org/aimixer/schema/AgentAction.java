@@ -1,4 +1,4 @@
-package org.thoroughfare.schema;
+package org.aimixer.schema;
 
 /**
  * Agent's action to take.

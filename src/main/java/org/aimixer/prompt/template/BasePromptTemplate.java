@@ -1,12 +1,12 @@
-package org.thoroughfare.prompt.template;
+package org.aimixer.prompt.template;
 
 import java.util.*;
 import java.nio.file.*;
 import java.io.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.thoroughfare.parser.BaseOutputParser;
-import org.thoroughfare.schema.PromptValue;
+import org.aimixer.parser.BaseOutputParser;
+import org.aimixer.schema.PromptValue;
 import org.yaml.snakeyaml.Yaml;
 
 /**

@@ -1,6 +1,6 @@
-package org.thoroughfare.prompt.loader;
+package org.aimixer.prompt.loader;
 
-import org.thoroughfare.prompt.template.BasePromptTemplate;
+import org.aimixer.prompt.template.BasePromptTemplate;
 
 import java.util.Map;
 import java.util.Optional;

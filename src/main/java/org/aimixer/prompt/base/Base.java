@@ -1,4 +1,4 @@
-package org.thoroughfare.prompt.base;
+package org.aimixer.prompt.base;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;

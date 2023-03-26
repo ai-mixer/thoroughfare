@@ -1,8 +1,8 @@
-package org.thoroughfare.callback;
+package org.aimixer.callback;
 
-import org.thoroughfare.schema.AgentAction;
-import org.thoroughfare.schema.AgentFinish;
-import org.thoroughfare.schema.LLMResult;
+import org.aimixer.schema.AgentAction;
+import org.aimixer.schema.AgentFinish;
+import org.aimixer.schema.LLMResult;
 
 import java.util.List;
 import java.util.Map;

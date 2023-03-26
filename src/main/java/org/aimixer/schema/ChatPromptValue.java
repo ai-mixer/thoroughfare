@@ -1,6 +1,6 @@
-package org.thoroughfare.schema;
+package org.aimixer.schema;
 
-import org.thoroughfare.memory.Utils;
+import org.aimixer.memory.Utils;
 
 import java.util.List;
 

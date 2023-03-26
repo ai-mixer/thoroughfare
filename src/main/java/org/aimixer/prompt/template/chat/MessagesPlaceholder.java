@@ -1,6 +1,6 @@
-package org.thoroughfare.prompt.template.chat;
+package org.aimixer.prompt.template.chat;
 
-import org.thoroughfare.schema.BaseMessage;
+import org.aimixer.schema.BaseMessage;
 
 import java.util.ArrayList;
 import java.util.List;

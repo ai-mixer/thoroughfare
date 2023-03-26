@@ -1,8 +1,8 @@
-package org.thoroughfare.prompt.template.prompt;
+package org.aimixer.prompt.template.prompt;
 
-import org.thoroughfare.parser.BaseOutputParser;
-import org.thoroughfare.prompt.base.Base;
-import org.thoroughfare.prompt.template.StringPromptTemplate;
+import org.aimixer.parser.BaseOutputParser;
+import org.aimixer.prompt.base.Base;
+import org.aimixer.prompt.template.StringPromptTemplate;
 
 import java.io.BufferedReader;
 import java.io.FileReader;

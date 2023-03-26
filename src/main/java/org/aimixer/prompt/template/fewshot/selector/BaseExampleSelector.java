@@ -1,4 +1,4 @@
-package org.thoroughfare.prompt.template.fewshot.selector;
+package org.aimixer.prompt.template.fewshot.selector;
 
 import java.util.Map;
 import java.util.List;

@@ -1,7 +1,7 @@
-package org.thoroughfare.prompt.template;
+package org.aimixer.prompt.template;
 
-import org.thoroughfare.schema.PromptValue;
-import org.thoroughfare.schema.StringPromptValue;
+import org.aimixer.schema.PromptValue;
+import org.aimixer.schema.StringPromptValue;
 
 import java.util.Map;
 

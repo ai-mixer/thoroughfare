@@ -1,13 +1,13 @@
-package org.thoroughfare.prompt.loader;
+package org.aimixer.prompt.loader;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
-import org.thoroughfare.parser.BaseOutputParser;
-import org.thoroughfare.parser.RegexParser;
-import org.thoroughfare.prompt.template.BasePromptTemplate;
-import org.thoroughfare.prompt.template.fewshot.FewShotPromptTemplate;
-import org.thoroughfare.prompt.template.prompt.PromptTemplate;
-import org.thoroughfare.utilites.LoaderUtils;
+import org.aimixer.parser.BaseOutputParser;
+import org.aimixer.parser.RegexParser;
+import org.aimixer.prompt.template.BasePromptTemplate;
+import org.aimixer.prompt.template.fewshot.FewShotPromptTemplate;
+import org.aimixer.prompt.template.prompt.PromptTemplate;
+import org.aimixer.utilites.LoaderUtils;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.*;

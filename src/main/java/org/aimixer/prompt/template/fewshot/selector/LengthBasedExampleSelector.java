@@ -1,7 +1,7 @@
-package org.thoroughfare.prompt.template.fewshot.selector;
+package org.aimixer.prompt.template.fewshot.selector;
 
-import org.thoroughfare.dantic.BaseModel;
-import org.thoroughfare.prompt.template.prompt.PromptTemplate;
+import org.aimixer.dantic.BaseModel;
+import org.aimixer.prompt.template.prompt.PromptTemplate;
 
 import java.util.ArrayList;
 import java.util.List;

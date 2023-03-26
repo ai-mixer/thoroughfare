@@ -1,4 +1,4 @@
-package org.thoroughfare.utilites;
+package org.aimixer.utilites;
 
 import java.io.*;
 import java.net.*;

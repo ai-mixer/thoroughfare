@@ -1,8 +1,8 @@
-package org.thoroughfare.prompt.template.chat;
+package org.aimixer.prompt.template.chat;
 
-import org.thoroughfare.prompt.template.StringPromptTemplate;
-import org.thoroughfare.schema.BaseMessage;
-import org.thoroughfare.schema.HumanMessage;
+import org.aimixer.prompt.template.StringPromptTemplate;
+import org.aimixer.schema.BaseMessage;
+import org.aimixer.schema.HumanMessage;
 
 import java.util.Map;
 

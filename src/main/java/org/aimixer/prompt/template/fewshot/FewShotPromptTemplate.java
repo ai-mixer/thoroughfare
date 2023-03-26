@@ -1,10 +1,10 @@
-package org.thoroughfare.prompt.template.fewshot;
+package org.aimixer.prompt.template.fewshot;
 
-import org.thoroughfare.parser.BaseOutputParser;
-import org.thoroughfare.prompt.base.Base;
-import org.thoroughfare.prompt.template.fewshot.selector.BaseExampleSelector;
-import org.thoroughfare.prompt.template.StringPromptTemplate;
-import org.thoroughfare.prompt.template.prompt.PromptTemplate;
+import org.aimixer.parser.BaseOutputParser;
+import org.aimixer.prompt.base.Base;
+import org.aimixer.prompt.template.fewshot.selector.BaseExampleSelector;
+import org.aimixer.prompt.template.StringPromptTemplate;
+import org.aimixer.prompt.template.prompt.PromptTemplate;
 
 import java.util.ArrayList;
 import java.util.List;

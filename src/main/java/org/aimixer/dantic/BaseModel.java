@@ -1,4 +1,4 @@
-package org.thoroughfare.dantic;
+package org.aimixer.dantic;
 
 public interface BaseModel {
 

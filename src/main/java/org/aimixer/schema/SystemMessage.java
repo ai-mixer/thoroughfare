@@ -1,4 +1,4 @@
-package org.thoroughfare.schema;
+package org.aimixer.schema;
 
 import java.util.Map;
 

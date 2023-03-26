@@ -1,6 +1,6 @@
-package org.thoroughfare.memory;
+package org.aimixer.memory;
 
-import org.thoroughfare.schema.*;
+import org.aimixer.schema.*;
 
 import java.util.ArrayList;
 import java.util.List;

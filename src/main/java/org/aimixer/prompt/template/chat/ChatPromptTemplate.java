@@ -1,10 +1,10 @@
-package org.thoroughfare.prompt.template.chat;
+package org.aimixer.prompt.template.chat;
 
-import org.thoroughfare.prompt.template.BasePromptTemplate;
-import org.thoroughfare.prompt.template.prompt.PromptTemplate;
-import org.thoroughfare.schema.BaseMessage;
-import org.thoroughfare.schema.ChatPromptValue;
-import org.thoroughfare.schema.PromptValue;
+import org.aimixer.prompt.template.BasePromptTemplate;
+import org.aimixer.prompt.template.prompt.PromptTemplate;
+import org.aimixer.schema.BaseMessage;
+import org.aimixer.schema.ChatPromptValue;
+import org.aimixer.schema.PromptValue;
 
 import java.util.*;
 

@@ -1,4 +1,4 @@
-package org.thoroughfare.parser;
+package org.aimixer.parser;
 
 import java.util.HashMap;
 import java.util.Map;
