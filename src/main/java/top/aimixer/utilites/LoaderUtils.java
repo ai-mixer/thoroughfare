@@ -8,8 +8,8 @@ import java.util.function.*;
 import java.util.regex.*;
 
 public class LoaderUtils {
-    private static final String DEFAULT_REF = System.getenv("LANGCHAIN_HUB_DEFAULT_REF") != null ? System.getenv("LANGCHAIN_HUB_DEFAULT_REF") : "master";
-    private static final String URL_BASE = System.getenv("LANGCHAIN_HUB_URL_BASE") != null ? System.getenv("LANGCHAIN_HUB_URL_BASE") : "https://raw.githubusercontent.com/hwchase17/langchain-hub/{ref}/";
+    private static final String DEFAULT_REF = System.getenv("TF_HUB_DEFAULT_REF") != null ? System.getenv("LANGCHAIN_HUB_DEFAULT_REF") : "master";
+    private static final String URL_BASE = System.getenv("TF_HUB_URL_BASE") != null ? System.getenv("LANGCHAIN_HUB_URL_BASE") : "https://raw.githubusercontent.com/hwchase17/langchain-hub/{ref}/";
     private static final Pattern HUB_PATH_RE = Pattern.compile("\"lc(?:@([^:]+))?://(.*)\";");
 
     public static <T> Optional<T> tryLoadFromHub(

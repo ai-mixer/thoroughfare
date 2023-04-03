@@ -13,10 +13,12 @@ public class Generation {
     private final String text;
     private final Optional<Map<String, Object>> generationInfo;
 
+
     public Generation(String text, Optional<Map<String, Object>> generationInfo) {
         this.text = text;
         this.generationInfo = generationInfo;
     }
+
 
     public String getText() {
         return text;

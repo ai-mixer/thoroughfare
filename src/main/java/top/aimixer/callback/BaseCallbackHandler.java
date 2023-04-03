@@ -2,7 +2,7 @@ package top.aimixer.callback;
 
 import top.aimixer.schema.AgentAction;
 import top.aimixer.schema.AgentFinish;
-import top.aimixer.schema.LLMResult;
+import top.aimixer.schema.models.LLMResult;
 
 import java.util.List;
 import java.util.Map;
@@ -37,9 +37,8 @@ public interface BaseCallbackHandler {
      *
      * @param serialized
      * @param prompts
-     * @param kwargs
      */
-    void onLLMStart(Map<String, Object> serialized, List<String> prompts, Map<String, Object> kwargs);
+    void onLLMStart(Map<String, Object> serialized, List<String> prompts);
 
     //
 
@@ -47,11 +46,11 @@ public interface BaseCallbackHandler {
 
     // Run on new LLM token. Only available when streaming is enabled.
 
-    void onLLMEnd(LLMResult response, Map<String, Object> kwargs);
+    void onLLMEnd(LLMResult response);
 
     // Run when LLM ends running.
 
-    void onLLMError(Exception error, Map<String, Object> kwargs);
+    void onLLMError(Exception error);
 
     // Run when LLM errors.
 

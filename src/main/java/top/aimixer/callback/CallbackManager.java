@@ -2,14 +2,14 @@ package top.aimixer.callback;
 
 import top.aimixer.schema.AgentAction;
 import top.aimixer.schema.AgentFinish;
-import top.aimixer.schema.LLMResult;
+import top.aimixer.schema.models.LLMResult;
 
 import java.util.List;
 import java.util.Map;
 
 public class CallbackManager extends BaseCallbackManager {
     @Override
-    public void onLLMStart(Map<String, Object> serialized, List<String> prompts, Map<String, Object> kwargs) {
+    public void onLLMStart(Map<String, Object> serialized, List<String> prompts) {
 
     }
 
@@ -19,12 +19,12 @@ public class CallbackManager extends BaseCallbackManager {
     }
 
     @Override
-    public void onLLMEnd(LLMResult response, Map<String, Object> kwargs) {
+    public void onLLMEnd(LLMResult response) {
 
     }
 
     @Override
-    public void onLLMError(Exception error, Map<String, Object> kwargs) {
+    public void onLLMError(Exception error) {
 
     }
 
