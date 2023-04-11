@@ -1,7 +1,9 @@
 package top.aimixer.modules.models.llms;
 
+import com.google.common.collect.Maps;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.theokanning.openai.service.OpenAiService;
 import top.aimixer.callback.BaseCallbackManager;
 import top.aimixer.init.TF;
 import top.aimixer.schema.Generation;
@@ -19,15 +21,26 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
+/**
+ * LLM wrapper should take in a prompt and return a string.
+ */
 public abstract class BaseLLM extends BaseLanguageModel {
+    // :meta private:
+    public OpenAiService openAiService;
+    /**
+     * Whether to print out response text."
+     */
     private Boolean cache;
-    private BaseCallbackManager callbackManager;
+//    private BaseCallbackManager callbackManager;
+
+    public BaseLLM() {
+    }
 
     public BaseLLM(Boolean cache, BaseCallbackManager callbackManager) {
         this.cache = cache;
-        if (callbackManager != null) {
-            this.callbackManager = callbackManager;
-        }
+//        if (callbackManager != null) {
+//            this.callbackManager = callbackManager;
+//        }
     }
 
     public static Quadruple<Map<Integer, List<Generation>>, String, List<Integer>, List<String>> getPrompts(
@@ -51,7 +64,7 @@ public abstract class BaseLLM extends BaseLanguageModel {
         return new Quadruple<>(existingPrompts, llmString, missingPromptIdxs, missingPrompts);
     }
 
-    public static Optional<Map<String, Object>> updateCache(
+    public static Map<String, Object> updateCache(
             Map<Integer, List<Generation>> existingPrompts,
             String llmString,
             List<Integer> missingPromptIdxs,
@@ -64,8 +77,8 @@ public abstract class BaseLLM extends BaseLanguageModel {
                 TF.LLM_CACHE.update(prompt, llmString, newResults.getGenerations().get(i));
             }
         }
-        Map<String, Object> llmOutput = newResults.getLlmOutput().get();
-        return Optional.ofNullable(llmOutput);
+        Map<String, Object> llmOutput = newResults.getLlmOutput();
+        return llmOutput;
     }
 
     @Override
@@ -80,6 +93,13 @@ public abstract class BaseLLM extends BaseLanguageModel {
         return asyncGenerate0(prompt_strings, stop);
     }
 
+    /**
+     * Run the LLM on the given prompt and input.
+     *
+     * @param prompts
+     * @param stop
+     * @return
+     */
     private LLMResult generate0(List<String> prompts, List<String> stop) {
         if (!(prompts instanceof List)) {
             throw new IllegalArgumentException("Argument 'prompts' is expected to be of type List<String>, received argument of type " + prompts.getClass().getSimpleName() + ".");
@@ -92,13 +112,13 @@ public abstract class BaseLLM extends BaseLanguageModel {
             Map map = new HashMap<String, String>() {{
                 put("name", this.getClass().getSimpleName());
             }};
-            this.callbackManager.onLLMStart(map, prompts);
+//            this.callbackManager.onLLMStart(map, prompts);
             try {
                 LLMResult output = this.generate(prompts, stop);
-                this.callbackManager.onLLMEnd(output);
+//                this.callbackManager.onLLMEnd(output);
                 return output;
             } catch (Exception e) {
-                this.callbackManager.onLLMError(e);
+//                this.callbackManager.onLLMError(e);
                 throw new RuntimeException(e);
             }
         }
@@ -112,18 +132,18 @@ public abstract class BaseLLM extends BaseLanguageModel {
         List<Integer> missingPromptIndexes = promptsQuadruple.getThird();
         List<String> missingPrompts = promptsQuadruple.getFourth();
 
-        Optional<Map<String, Object>> llmOutput = Optional.of(new HashMap<>());
+        Map<String, Object> llmOutput = new HashMap<>();
         if (missingPrompts.size() > 0) {
             Map map = new HashMap<String, String>() {{
                 put("name", this.getClass().getSimpleName());
             }};
-            this.callbackManager.onLLMStart(map, missingPrompts);
+//            this.callbackManager.onLLMStart(map, missingPrompts);
             try {
                 LLMResult newResults = this.generate(missingPrompts, stop);
-                this.callbackManager.onLLMEnd(newResults);
+//                this.callbackManager.onLLMEnd(newResults);
                 llmOutput = updateCache(existingPrompts, llmString, missingPromptIndexes, newResults, prompts);
             } catch (Exception e) {
-                this.callbackManager.onLLMError(e);
+//                this.callbackManager.onLLMError(e);
                 throw new RuntimeException(e);
             }
         }
@@ -134,26 +154,33 @@ public abstract class BaseLLM extends BaseLanguageModel {
         return new LLMResult(generations, llmOutput);
     }
 
+    /**
+     * Run the LLM on the given prompt and input.
+     *
+     * @param prompts
+     * @param stop
+     * @return
+     */
     private LLMResult asyncGenerate0(List<String> prompts, List<String> stop) {
         boolean disregard_cache = this.cache != null && !this.cache;
         if (TF.LLM_CACHE == null || disregard_cache) {
             if (this.cache != null && this.cache) {
-                throw new IllegalArgumentException("Asked to cache, but no cache found at `langchain.cache`.");
+                throw new IllegalArgumentException("Asked to cache, but no cache found at `cache`.");
             }
-            this.callbackManager.onLLMStart(
-                    Map.of("name", this.getClass().getSimpleName()), prompts);
+//            this.callbackManager.onLLMStart(
+//                    Map.of("name", this.getClass().getSimpleName()), prompts);
             try {
                 CompletableFuture<LLMResult> asyncOutput = this.asyncGenerate(prompts, stop);
                 LLMResult output = null;
-                if (this.callbackManager.isAsync()) {
-                    output = asyncOutput.get();
-                } else {
-                    output = asyncOutput.getNow(null);
-                }
-                this.callbackManager.onLLMEnd(output);
+//                if (this.callbackManager.isAsync()) {
+//                output = asyncOutput.get();
+//                } else {
+                output = asyncOutput.getNow(null);
+//                }
+//                this.callbackManager.onLLMEnd(output);
                 return output;
             } catch (Exception e) {
-                this.callbackManager.onLLMError(e);
+//                this.callbackManager.onLLMError(e);
                 throw new RuntimeException(e);
             }
 
@@ -168,24 +195,24 @@ public abstract class BaseLLM extends BaseLanguageModel {
         List<Integer> missingPromptIndexes = promptsQuadruple.getThird();
         List<String> missingPrompts = promptsQuadruple.getFourth();
 
-        Optional<Map<String, Object>> llmOutput = Optional.of(new HashMap<>());
+        Map<String, Object> llmOutput = new HashMap<>();
         if (missingPrompts.size() > 0) {
             Map map = new HashMap<String, String>() {{
                 put("name", this.getClass().getSimpleName());
             }};
-            this.callbackManager.onLLMStart(map, missingPrompts);
+//            this.callbackManager.onLLMStart(map, missingPrompts);
             try {
                 CompletableFuture<LLMResult> asyncNewResults = asyncGenerate(missingPrompts, stop);
                 LLMResult newResults = null;
-                if (callbackManager.isAsync()) {
-                    newResults = asyncNewResults.get();
-                } else {
-                    newResults = asyncNewResults.getNow(null);
-                }
-                callbackManager.onLLMEnd(newResults);
+//                if (callbackManager.isAsync()) {
+//                    newResults = asyncNewResults.get();
+//                } else {
+                newResults = asyncNewResults.getNow(null);
+//                }
+//                callbackManager.onLLMEnd(newResults);
                 llmOutput = updateCache(existingPrompts, llmString, missingPromptIndexes, newResults, prompts);
             } catch (Exception e) {
-                this.callbackManager.onLLMError(e);
+//                this.callbackManager.onLLMError(e);
                 throw new RuntimeException(e);
             }
         }
@@ -196,6 +223,13 @@ public abstract class BaseLLM extends BaseLanguageModel {
         return new LLMResult(generations, llmOutput);
     }
 
+    /**
+     * Check Cache and run the LLM on the given prompt and input.
+     *
+     * @param prompt
+     * @param stop
+     * @return
+     */
     public String call(String prompt, List<String> stop) {
         return generate0(Arrays.asList(prompt), stop).getGenerations().get(0).get(0).getText();
     }
@@ -244,6 +278,10 @@ public abstract class BaseLLM extends BaseLanguageModel {
         }
     }
 
+    private Map<String, Object> identifyingParams() {
+        return Maps.newHashMap();
+    }
+
     public String toString() {
         String cls_name = "\033[1m" + this.getClass().getSimpleName() + "\033[0m";
         return cls_name + "\nParams: " + identifyingParams();
@@ -257,20 +295,36 @@ public abstract class BaseLLM extends BaseLanguageModel {
         this.cache = cache;
     }
 
-    public BaseCallbackManager getCallbackManager() {
-        return callbackManager;
-    }
+//    public BaseCallbackManager getCallbackManager() {
+//        return callbackManager;
+//    }
 
-    public void setCallbackManager(BaseCallbackManager callbackManager) {
-        this.callbackManager = callbackManager;
-    }
+//    public void setCallbackManager(BaseCallbackManager callbackManager) {
+//        this.callbackManager = callbackManager;
+//    }
 
+//    public abstract Map<String, Object> buildExtra(Map<String, Object> values);
+//
+//    public abstract Map<String, Object> validateEnvironment(Map<String, Object> values);
+
+    /**
+     * Run the LLM on the given prompts.
+     *
+     * @param prompts
+     * @param stop
+     * @return
+     */
     public abstract LLMResult generate(List<String> prompts, List<String> stop);
 
+    /**
+     * Run the LLM on the given prompts.
+     *
+     * @param prompts
+     * @param stop
+     * @return
+     */
     public abstract CompletableFuture<LLMResult> asyncGenerate(List<String> prompts, List<String> stop);
 
     public abstract String llmType();
-
-    protected abstract Map<String, Object> identifyingParams();
 
 }

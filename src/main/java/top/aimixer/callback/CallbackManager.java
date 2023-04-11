@@ -14,7 +14,7 @@ public class CallbackManager extends BaseCallbackManager {
     }
 
     @Override
-    public void onLLMNewToken(String token, Map<String, Object> kwargs) {
+    public void onLLMNewToken(String token, List<Double> logProbs) {
 
     }
 

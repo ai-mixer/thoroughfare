@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Base callback handler that can be used to handle callbacks from langchain.
+ * Base callback handler that can be used to handle callbacks.
  */
 public interface BaseCallbackHandler {
 
@@ -42,7 +42,7 @@ public interface BaseCallbackHandler {
 
     //
 
-    void onLLMNewToken(String token, Map<String, Object> kwargs);
+    void onLLMNewToken(String token, List<Double> logProbs);
 
     // Run on new LLM token. Only available when streaming is enabled.
 

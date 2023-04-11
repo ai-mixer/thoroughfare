@@ -17,14 +17,14 @@ public class LLMResult {
      */
     private List<List<Generation>> generations;
 
-    private Optional<Map<String, Object>> llmOutput;
+    private Map<String, Object> llmOutput;
     // For arbitrary LLM provider specific output.
 
     public LLMResult(List<List<Generation>> generations) {
         this.generations = generations;
     }
 
-    public LLMResult(List<List<Generation>> generations, Optional<Map<String, Object>> llmOutput) {
+    public LLMResult(List<List<Generation>> generations, Map<String, Object> llmOutput) {
         this.generations = generations;
         this.llmOutput = llmOutput;
     }
@@ -37,11 +37,11 @@ public class LLMResult {
         this.generations = generations;
     }
 
-    public Optional<Map<String, Object>> getLlmOutput() {
+    public Map<String, Object> getLlmOutput() {
         return llmOutput;
     }
 
-    public void setLlmOutput(Optional<Map<String, Object>> llmOutput) {
+    public void setLlmOutput(Map<String, Object> llmOutput) {
         this.llmOutput = llmOutput;
     }
 }

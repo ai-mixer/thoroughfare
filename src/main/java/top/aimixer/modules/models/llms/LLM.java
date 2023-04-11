@@ -4,10 +4,7 @@ import top.aimixer.callback.BaseCallbackManager;
 import top.aimixer.schema.Generation;
 import top.aimixer.schema.models.LLMResult;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -36,7 +33,7 @@ public abstract class LLM extends BaseLLM {
         List<List<Generation>> generations = new ArrayList<>();
         for (String prompt : prompts) {
             String text = call(prompt, stop);
-            generations.add(Collections.singletonList(new Generation(text, Optional.empty())));
+            generations.add(Collections.singletonList(new Generation(text, new HashMap<>())));
         }
         return new LLMResult(generations);
     }
@@ -50,7 +47,7 @@ public abstract class LLM extends BaseLLM {
         for (String prompt : prompts) {
             try {
                 String text = asyncCall(prompt, stop).get();
-                generations.add(Collections.singletonList(new Generation(text, Optional.empty())));
+                generations.add(Collections.singletonList(new Generation(text, new HashMap<>())));
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }

@@ -11,10 +11,10 @@ public class Generation {
      * Generated text output.
      */
     private final String text;
-    private final Optional<Map<String, Object>> generationInfo;
+    private final Map<String, Object> generationInfo;
 
 
-    public Generation(String text, Optional<Map<String, Object>> generationInfo) {
+    public Generation(String text, Map<String, Object> generationInfo) {
         this.text = text;
         this.generationInfo = generationInfo;
     }
@@ -31,7 +31,7 @@ public class Generation {
      *
      * @return
      */
-    public Optional<Map<String, Object>> getGenerationInfo() {
+    public Map<String, Object> getGenerationInfo() {
         return generationInfo;
     }
 }
