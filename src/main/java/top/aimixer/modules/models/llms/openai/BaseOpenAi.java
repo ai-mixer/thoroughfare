@@ -2,25 +2,16 @@ package top.aimixer.modules.models.llms.openai;
 
 import com.knuddels.jtokkit.api.EncodingType;
 import com.knuddels.jtokkit.api.ModelType;
-import com.theokanning.openai.OpenAiHttpException;
-import com.theokanning.openai.Usage;
 import com.theokanning.openai.completion.CompletionChoice;
+import com.theokanning.openai.completion.CompletionChunk;
 import com.theokanning.openai.completion.CompletionRequest;
 import com.theokanning.openai.completion.CompletionResult;
-import com.theokanning.openai.service.OpenAiService;
-import io.github.resilience4j.core.IntervalFunction;
 import io.github.resilience4j.retry.Retry;
-import io.github.resilience4j.retry.RetryConfig;
-import io.github.resilience4j.retry.RetryRegistry;
-import top.aimixer.modules.models.llms.BaseLLM;
+import io.reactivex.Flowable;
 import top.aimixer.schema.Generation;
 import top.aimixer.schema.models.LLMResult;
-import top.aimixer.utilites.OSUtils;
 import top.aimixer.utilites.tokenizer.TokenUtils;
 
-import java.lang.reflect.Field;
-import java.time.Duration;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -34,68 +25,26 @@ import java.util.concurrent.CompletableFuture;
  * Any parameters that are valid to be passed to the openai.create call can be passed
  * in, even if not explicitly saved on this class.
  */
-public class BaseOpenAI extends BaseLLM {
-    // :meta private:
-    private CompletionRequest completionRequest = new CompletionRequest();
-    // Model name to use.
-    public String modelName = ModelType.TEXT_DAVINCI_003.getName();
-    // What sampling temperature to use.
-    private double temperature = 0.7f;
-
+public class BaseOpenAi extends OpenAi {
+    /**
+     * Model name to use.
+     * Must use static to avoid init after constructor.
+     */
+    public static String modelName = ModelType.TEXT_DAVINCI_003.getName();
+    /**
+     * Do not use new to initialize
+     */
+    private CompletionRequest completionRequest;
     private String suffix;
-    // The maximum number of tokens to generate in the completion.
-    // -1 returns as many tokens as possible given the prompt and the models maximal context size.
-    private int maxTokens = 256;
-    // Total probability mass of tokens to consider at each step.
-    private double topP = 1;
-    // Penalizes repeated tokens according to frequency.
-    private double frequencyPenalty = 0;
-    // Penalizes repeated tokens.
-    private double presencePenalty = 0;
-    // How many completions to generate for each prompt.
-    private int n = 1;
-    // Generates best_of completions server-side and returns the "best".
-    private int bestOf = 1;
-
     private int logProbs;
-
-    private List<String> stop;
     private boolean echo;
-    // Adjust the probability of specific tokens being generated.
-    private Map<String, Integer> logitBias = new HashMap<>();
-    private String user;
-
-    // Holds any model parameters valid for `create` call not explicitly specified.
-    //    private String openaiApiKey = null;
     // Batch size to use when passing multiple documents to generate.
     private int batchSize = 20;
     // Timeout for requests to OpenAI completion API. Default is 600 seconds.
     private Float requestTimeout = null;
-    // Maximum number of retries to make when generating.
-    private int maxRetries = 6;
-    // Whether to stream the results or not.
-    private boolean streaming = false;
 
-    public BaseOpenAI(Map<String, Object> instanceParams) {
-        buildApiEnvironment(fillParams(instanceParams));
-    }
-
-    private Map<String, Object> fillParams(Map<String, Object> instanceParams) {
-        Field[] fields = this.getClass().getDeclaredFields();
-        for (Field field : fields) {
-            String fieldName = field.getName();
-            Object paramValue = instanceParams.get(fieldName);
-            if (paramValue != null) {
-                field.setAccessible(true);
-                try {
-                    field.set(this, paramValue);
-                } catch (IllegalAccessException e) {
-                    throw new RuntimeException(e);
-                }
-
-            }
-        }
-        return instanceParams;
+    public BaseOpenAi(Map<String, Object> requestParams) {
+        super(requestParams);
     }
 
 //    public Map<String, Object> buildExtra(Map<String, Object> instanceParams) {
@@ -118,46 +67,13 @@ public class BaseOpenAI extends BaseLLM {
 //        return instanceParams;
 //    }
 
-    private Map<String, Object> buildApiEnvironment(Map<String, Object> values) {
-        String openaiApiKey = null;
-        try {
-            openaiApiKey = OSUtils.getFromDictOrEnv(
-                    values, "openai_api_key", "OPENAI_API_KEY", null);
-            this.openAiService = new OpenAiService(openaiApiKey);
-            this.completionRequest = new CompletionRequest(
-                    this.modelName, null, this.suffix, this.maxTokens, this.temperature,
-                    this.topP, this.n, this.streaming, this.logProbs, this.echo, this.stop,
-                    this.presencePenalty, this.frequencyPenalty, this.bestOf, this.logitBias, this.user);
-        } catch (ClassNotFoundException e) {
-            throw new IllegalArgumentException(
-                    "Could not import openai python package. Please install it with `pip install openai`.");
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        if ((values.get("streaming") != null && (boolean) values.get("streaming"))
-                && (values.get("n") != null && (int) values.get("n") > 1)) {
-            throw new IllegalArgumentException("Cannot stream results when n > 1.");
-        }
-        if ((values.get("streaming") != null && (boolean) values.get("streaming"))
-                && (values.get("best_of") != null && (int) values.get("best_of") > 1)) {
-            throw new IllegalArgumentException("Cannot stream results when best_of > 1.");
-        }
-        return values;
-    }
-
-    /**
-     * Update token usage.
-     *
-     * @param response
-     * @return
-     */
-    public static Map<String, Long> updateTokenUsage(CompletionResult response) {
-        Map<String, Long> tokenUsageMap = new HashMap<>();
-        Usage usage = response.getUsage();
-        tokenUsageMap.computeIfPresent("completion_tokens", (key, val) -> val + usage.getCompletionTokens());
-        tokenUsageMap.computeIfPresent("prompt_tokens", (key, val) -> val + usage.getPromptTokens());
-        tokenUsageMap.computeIfPresent("total_tokens", (key, val) -> val + usage.getTotalTokens());
-        return tokenUsageMap;
+    @Override
+    protected void buildOpenAIRequest() {
+        this.completionRequest = new CompletionRequest(
+                this.modelName, null, this.suffix, this.maxTokens, this.temperature,
+                this.topP, this.n, this.streaming, this.logProbs, this.echo, this.stops,
+                this.presencePenalty, this.frequencyPenalty, this.bestOf, this.logitBias,
+                this.user);
     }
 
     /**
@@ -193,18 +109,14 @@ public class BaseOpenAI extends BaseLLM {
      * @return
      */
     private CompletionResult completionWithRetry() {
-        RetryConfig config = RetryConfig.custom()
-                .maxAttempts(3)
-//                .waitDuration(Duration.of(10, ChronoUnit.SECONDS))
-                .intervalFunction(IntervalFunction.ofExponentialBackoff(Duration.ofSeconds(1), 2))
-                .retryExceptions(OpenAiHttpException.class)
-                .build();
-
-        RetryRegistry registry = RetryRegistry.of(config);
-        Retry retry = registry.retry("openai-retry");
+        Retry retry = decorateRetry("openai-retry", maxRetries);
         return retry.executeSupplier(() -> openAiService.createCompletion(completionRequest));
     }
 
+    private Flowable<CompletionChunk> completionStreamWithRetry() {
+        Retry retry = decorateRetry("openai-retry-stream", maxRetries);
+        return retry.executeSupplier(() -> openAiService.streamCompletion(completionRequest));
+    }
 
     /**
      * Call out to OpenAI's endpoint with k unique prompts.
@@ -215,41 +127,42 @@ public class BaseOpenAI extends BaseLLM {
      */
     @Override
     public LLMResult generate(List<String> prompts, List<String> stops) {
-        Map<String, Object> params = getInvocationParams();
-        List<List<String>> subPrompts = getSubPrompts(params, prompts, stops);
+//        Map<String, Object> params = getInvocationParams();
+        List<List<String>> subPrompts = getSubPrompts(prompts, stops);
         List<CompletionChoice> choices = new ArrayList<>();
         Map<String, Long> tokenUsage = new HashMap<>();
         // Get the token usage from the response.
         // Includes prompt, completion, and total tokens used.
         // Set<String> filterKeys = new HashSet<>(Arrays.asList("completion_tokens", "prompt_tokens", "total_tokens"));
         for (List<String> subPrompt : subPrompts) {
+            completionRequest.setPrompt(subPrompt.get(0));
             if (this.streaming) {
                 if (subPrompt.size() > 1) {
                     throw new IllegalArgumentException("Cannot stream results with multiple prompts.");
                 }
-                params.put("stream", true);
+                completionRequest.setStream(true);
                 CompletionResult response = streamingResponseTemplate();
-                completionRequest.setPrompt(subPrompt.get(0));
-                CompletionResult streamResponseRetry = completionWithRetry();
-                List<CompletionChoice> choiceList = streamResponseRetry.getChoices();
+                Flowable<CompletionChunk> chunkFlowable = completionStreamWithRetry();
+                chunkFlowable.doOnError(Throwable::printStackTrace).blockingForEach((completionChunk) -> {
+                    List<CompletionChoice> choiceList = completionChunk.getChoices();
+                    updateResponse(response, choiceList);
+                    choices.addAll(response.getChoices());
+                });
 //                this.getCallbackManager().onLLMNewToken(choiceList.get(0).getText(),
 //                        choiceList.get(0).getLogprobs().getTokenLogprobs()
 //                );
-                updateResponse(response, choiceList);
-                choices.addAll(response.getChoices());
             } else {
-                completionRequest.setPrompt(subPrompt.get(0));
                 CompletionResult response = completionWithRetry();
                 choices.addAll(response.getChoices());
                 // Can't update token usage if streaming
-                tokenUsage = updateTokenUsage(response);
+                tokenUsage = updateTokenUsage(response.getUsage());
             }
         }
         return this.createLLMResult(choices, prompts, tokenUsage);
     }
 
     /**
-     * //TODO
+     * TODO: unimplemented
      *
      * @param prompts
      * @param stop
@@ -270,39 +183,37 @@ public class BaseOpenAI extends BaseLLM {
         return "openai";
     }
 
-    /**
-     * Get the default parameters for calling OpenAI API.
-     */
-    private Map<String, Object> getDefaultParams() {
-        Map<String, Object> normalParams = new HashMap<>();
-        normalParams.put("temperature", this.temperature);
-        normalParams.put("max_tokens", this.maxTokens);
-        normalParams.put("top_p", this.topP);
-        normalParams.put("frequency_penalty", this.frequencyPenalty);
-        normalParams.put("presence_penalty", this.presencePenalty);
-        normalParams.put("n", this.n);
-        normalParams.put("best_of", this.bestOf);
-        normalParams.put("request_timeout", this.requestTimeout);
-        normalParams.put("logit_bias", this.logitBias);
-        Map<String, Object> defaultParams = new HashMap<>(normalParams);
-//        defaultParams.putAll(this.);
-        return defaultParams;
-    }
+//    /**
+//     * Get the default parameters for calling OpenAI API.
+//     */
+//    private Map<String, Object> getDefaultParams() {
+//        Map<String, Object> normalParams = new HashMap<>();
+//        normalParams.put("temperature", this.getTemperature());
+//        normalParams.put("max_tokens", this.getMaxTokens());
+//        normalParams.put("top_p", this.getTopP());
+//        normalParams.put("frequency_penalty", this.getFrequencyPenalty());
+//        normalParams.put("presence_penalty", this.getPresencePenalty());
+//        normalParams.put("n", this.getN());
+//        normalParams.put("best_of", this.getBestOf());
+//        normalParams.put("request_timeout", this.requestTimeout);
+//        normalParams.put("logit_bias", this.getLogitBias());
+//        Map<String, Object> defaultParams = new HashMap<>(normalParams);
+////        defaultParams.putAll(this.);
+//        return defaultParams;
+//    }
 
-    public List<List<String>> getSubPrompts
-            (Map<String, Object> params, List<String> prompts, List<String> stops) {
+    public List<List<String>> getSubPrompts(List<String> prompts, List<String> stops) {
         if (stops != null) {
-            if (params.containsKey("stop")) {
-                throw new IllegalArgumentException("`stop` found in both the input and default params.");
-            }
-            params.put("stop", stops);
+            completionRequest.setStop(stops);
         }
-        if ((int) params.get("max_tokens") == -1) {
+        int maxTokens = this.maxTokensForPrompt(prompts.get(0));
+        if (maxTokens < 0) {
             if (prompts.size() != 1) {
-                throw new IllegalArgumentException("max_tokens set to -1 not supported for multiple inputs.");
+                throw new IllegalArgumentException("max_tokens set to -1 or prompt is empty is " +
+                        "not supported for multiple inputs.");
             }
-            params.put("max_tokens", this.maxTokensForPrompt(prompts.get(0)));
         }
+        completionRequest.setMaxTokens(maxTokens);
         List<List<String>> subPrompts = new ArrayList<>();
         for (int i = 0; i < prompts.size(); i += this.batchSize) {
             subPrompts.add(prompts.subList(i, Math.min(i + this.batchSize, prompts.size())));
@@ -310,8 +221,8 @@ public class BaseOpenAI extends BaseLLM {
         return subPrompts;
     }
 
-    public LLMResult createLLMResult(List<CompletionChoice> choices,
-                                     List<String> prompts, Map<String, Long> tokenUsage) {
+    public LLMResult createLLMResult(List<CompletionChoice> choices, List<String> prompts,
+                                     Map<String, Long> tokenUsage) {
         List<List<Generation>> generations = new ArrayList<>();
         for (int i = 0; i < prompts.size(); i++) {
             List<CompletionChoice> subChoices = choices.subList(i * this.n, (i + 1) * this.n);
@@ -346,54 +257,54 @@ public class BaseOpenAI extends BaseLLM {
 //     * A generator representing the stream of tokens from OpenAI.
 //     *
 //     * @param prompt
-//     * @param stop
+//     * @param stops
 //     * @return
 //     * @throws Exception
 //     */
-//    public Stream<String> stream(String prompt, List<String> stop) throws Exception {
-//        Map<String, Object> params = this.prepStreamingParams(stop);
-//        Stream<String> stream = this.client.(prompt, params).stream();
+//    public Stream<CompletionResult> stream(String prompt, List<String> stops) throws Exception {
+//        Map<String, Object> params = this.prepStreamingParams(stops);
+//        Stream<CompletionResult> stream = Stream.of(this.openAiService.createCompletion(completionRequest));
 //        return stream;
 //    }
 
-    /**
-     * Prepare the params for streaming.
-     */
-    public Map<String, Object> prepStreamingParams(List<String> stop) throws Exception {
-        Map<String, Object> params = getInvocationParams();
-        if ((int) params.get("best_of") != 1) {
-            throw new Exception("OpenAI only supports best_of == 1 for streaming");
-        }
-        if (stop != null) {
-            if (params.containsKey("stop")) {
-                throw new Exception("`stop` found in both the input and default params.");
-            }
-            params.put("stop", stop);
-        }
-        params.put("stream", true);
-        return params;
-    }
+//    /**
+//     * Prepare the params for streaming.
+//     */
+//    public Map<String, Object> prepStreamingParams(List<String> stops) throws Exception {
+//        Map<String, Object> params = getInvocationParams();
+//        if ((int) params.get("best_of") != 1) {
+//            throw new Exception("OpenAI only supports best_of == 1 for streaming");
+//        }
+//        if (stops != null) {
+//            if (params.containsKey("stop")) {
+//                throw new Exception("`stop` found in both the input and default params.");
+//            }
+//            params.put("stop", stops);
+//        }
+//        params.put("stream", true);
+//        return params;
+//    }
 
-    /**
-     * Get the parameters used to invoke the model.
-     *
-     * @return
-     */
-    protected Map<String, Object> getInvocationParams() {
-        return this.getDefaultParams();
-    }
+//    /**
+//     * Get the parameters used to invoke the model.
+//     *
+//     * @return
+//     */
+//    protected Map<String, Object> getInvocationParams() {
+//        return this.getDefaultParams();
+//    }
 
-    /**
-     * Get the identifying parameters.
-     *
-     * @return
-     */
-    public Map<String, Object> getIdentifyingParams() {
-        Map<String, Object> identifying_params = new HashMap<>();
-        identifying_params.put("model_name", this.modelName);
-        identifying_params.putAll(getDefaultParams());
-        return identifying_params;
-    }
+//    /**
+//     * Get the identifying parameters.
+//     *
+//     * @return
+//     */
+//    public Map<String, Object> getIdentifyingParams() {
+//        Map<String, Object> identifying_params = new HashMap<>();
+//        identifying_params.put("model_name", this.modelName);
+//        identifying_params.putAll(getDefaultParams());
+//        return identifying_params;
+//    }
 
     /**
      * Calculate num tokens with token util.
@@ -401,13 +312,14 @@ public class BaseOpenAI extends BaseLLM {
      * @param text
      * @return
      */
+    @Override
     public int getNumTokens(String text) {
         if (ModelType.TEXT_DAVINCI_003.getName().equals(modelName) ||
                 ModelType.TEXT_DAVINCI_002.getName().equals(modelName) ||
                 modelName.startsWith("code")) {
             return TokenUtils.tokenByEncodingType(EncodingType.R50K_BASE, text);
         }
-        // create a defualt GPT-3.5 encoder instance
+        // create a default GPT-3.5 encoder instance
         return super.getNumTokens(text);
     }
 
@@ -443,9 +355,8 @@ public class BaseOpenAI extends BaseLLM {
     /**
      * Calculate the maximum number of tokens possible to generate for a prompt.
      */
-    public int maxTokensForPrompt(String prompt) {
+    private int maxTokensForPrompt(String prompt) {
         int num_tokens = getNumTokens(prompt);
-
         // get max context size for model by name
         int max_size = modelNameToContextSize(this.modelName);
         return max_size - num_tokens;

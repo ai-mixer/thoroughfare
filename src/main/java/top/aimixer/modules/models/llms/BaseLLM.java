@@ -3,7 +3,6 @@ package top.aimixer.modules.models.llms;
 import com.google.common.collect.Maps;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.theokanning.openai.service.OpenAiService;
 import top.aimixer.callback.BaseCallbackManager;
 import top.aimixer.init.TF;
 import top.aimixer.schema.Generation;
@@ -25,8 +24,6 @@ import java.util.stream.Collectors;
  * LLM wrapper should take in a prompt and return a string.
  */
 public abstract class BaseLLM extends BaseLanguageModel {
-    // :meta private:
-    public OpenAiService openAiService;
     /**
      * Whether to print out response text."
      */
@@ -109,9 +106,9 @@ public abstract class BaseLLM extends BaseLanguageModel {
             if (this.cache != null && this.cache) {
                 throw new IllegalArgumentException("Asked to cache, but no cache found.");
             }
-            Map map = new HashMap<String, String>() {{
-                put("name", this.getClass().getSimpleName());
-            }};
+//            Map map = new HashMap<String, String>() {{
+//                put("name", this.getClass().getSimpleName());
+//            }};
 //            this.callbackManager.onLLMStart(map, prompts);
             try {
                 LLMResult output = this.generate(prompts, stop);
@@ -314,7 +311,7 @@ public abstract class BaseLLM extends BaseLanguageModel {
      * @param stop
      * @return
      */
-    public abstract LLMResult generate(List<String> prompts, List<String> stop);
+    public abstract LLMResult generate(List<String> prompts, List<String> stop) throws Exception;
 
     /**
      * Run the LLM on the given prompts.
@@ -326,5 +323,4 @@ public abstract class BaseLLM extends BaseLanguageModel {
     public abstract CompletableFuture<LLMResult> asyncGenerate(List<String> prompts, List<String> stop);
 
     public abstract String llmType();
-
 }

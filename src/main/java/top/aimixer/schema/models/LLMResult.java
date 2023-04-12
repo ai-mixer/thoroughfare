@@ -17,8 +17,11 @@ public class LLMResult {
      */
     private List<List<Generation>> generations;
 
+    /**
+     * For arbitrary LLM provider specific output.
+     */
     private Map<String, Object> llmOutput;
-    // For arbitrary LLM provider specific output.
+
 
     public LLMResult(List<List<Generation>> generations) {
         this.generations = generations;

@@ -10,9 +10,13 @@ public class Generation {
     /**
      * Generated text output.
      */
-    private final String text;
-    private final Map<String, Object> generationInfo;
+    private String text;
+    private Map<String, Object> generationInfo;
 
+
+    public Generation(String text) {
+        this.text = text;
+    }
 
     public Generation(String text, Map<String, Object> generationInfo) {
         this.text = text;
