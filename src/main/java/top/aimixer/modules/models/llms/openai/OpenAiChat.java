@@ -77,7 +77,7 @@ public class OpenAiChat extends OpenAi {
     }
 
     public LLMResult createLLMResult(String message, Map<String, Long> tokenUsage) {
-        List<List<Generation>> generations = new ArrayList<>();
+        List<List<? extends Generation>> generations = new ArrayList<>();
         List<Generation> subGenerations = new ArrayList<>();
         subGenerations.add(new Generation(message));
         generations.add(subGenerations);
@@ -104,7 +104,7 @@ public class OpenAiChat extends OpenAi {
         } else {
             ChatCompletionResult chatCompletionResult = completionWithRetry();
             response.append(chatCompletionResult.getChoices().get(0).getMessage().getContent());
-            tokenUsage = updateTokenUsage(chatCompletionResult.getUsage());
+            updateTokenUsage(chatCompletionResult.getUsage(), tokenUsage);
         }
         return this.createLLMResult(response.toString(), tokenUsage);
     }

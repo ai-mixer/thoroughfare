@@ -38,4 +38,12 @@ public class Generation {
     public Map<String, Object> getGenerationInfo() {
         return generationInfo;
     }
+
+    @Override
+    public String toString() {
+        return "Generation{" +
+                "text='" + text + '\'' +
+                ", generationInfo=" + generationInfo +
+                '}';
+    }
 }

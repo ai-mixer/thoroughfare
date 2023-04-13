@@ -5,6 +5,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import top.aimixer.callback.BaseCallbackManager;
 import top.aimixer.init.TF;
+import top.aimixer.modules.models.BaseLanguageModel;
 import top.aimixer.schema.Generation;
 import top.aimixer.schema.Quadruple;
 import top.aimixer.schema.models.LLMResult;
@@ -40,12 +41,12 @@ public abstract class BaseLLM extends BaseLanguageModel {
 //        }
     }
 
-    public static Quadruple<Map<Integer, List<Generation>>, String, List<Integer>, List<String>> getPrompts(
+    public static Quadruple<Map<Integer, List<? extends Generation>>, String, List<Integer>, List<String>> getPrompts(
             Map<String, Object> params, List<String> prompts) {
         String llmString = String.valueOf(new TreeMap<>(params));
         List<String> missingPrompts = new ArrayList<>();
         List<Integer> missingPromptIdxs = new ArrayList<>();
-        Map<Integer, List<Generation>> existingPrompts = new HashMap<>();
+        Map<Integer, List<? extends Generation>> existingPrompts = new HashMap<>();
         for (int i = 0; i < prompts.size(); i++) {
             if (TF.LLM_CACHE != null) {
                 String prompt = prompts.get(i);
@@ -61,8 +62,8 @@ public abstract class BaseLLM extends BaseLanguageModel {
         return new Quadruple<>(existingPrompts, llmString, missingPromptIdxs, missingPrompts);
     }
 
-    public static Map<String, Object> updateCache(
-            Map<Integer, List<Generation>> existingPrompts,
+    public static Map<String, Long> updateCache(
+            Map<Integer, List<? extends Generation>> existingPrompts,
             String llmString,
             List<Integer> missingPromptIdxs,
             LLMResult newResults,
@@ -74,7 +75,7 @@ public abstract class BaseLLM extends BaseLanguageModel {
                 TF.LLM_CACHE.update(prompt, llmString, newResults.getGenerations().get(i));
             }
         }
-        Map<String, Object> llmOutput = newResults.getLlmOutput();
+        Map<String, Long> llmOutput = newResults.getLlmOutput();
         return llmOutput;
     }
 
@@ -122,14 +123,14 @@ public abstract class BaseLLM extends BaseLanguageModel {
         Map<String, Object> params = new HashMap<>() {{
             put("stop", stop);
         }};
-        Quadruple<Map<Integer, List<Generation>>, String, List<Integer>, List<String>> promptsQuadruple =
+        Quadruple<Map<Integer, List<? extends Generation>>, String, List<Integer>, List<String>> promptsQuadruple =
                 getPrompts(params, prompts);
-        Map<Integer, List<Generation>> existingPrompts = promptsQuadruple.getFirst();
+        Map<Integer, List<? extends Generation>> existingPrompts = promptsQuadruple.getFirst();
         String llmString = promptsQuadruple.getSecond();
         List<Integer> missingPromptIndexes = promptsQuadruple.getThird();
         List<String> missingPrompts = promptsQuadruple.getFourth();
 
-        Map<String, Object> llmOutput = new HashMap<>();
+        Map<String, Long> llmOutput = new HashMap<>();
         if (missingPrompts.size() > 0) {
             Map map = new HashMap<String, String>() {{
                 put("name", this.getClass().getSimpleName());
@@ -144,7 +145,7 @@ public abstract class BaseLLM extends BaseLanguageModel {
                 throw new RuntimeException(e);
             }
         }
-        List<List<Generation>> generations = new ArrayList<>();
+        List<List<? extends Generation>> generations = new ArrayList<>();
         for (int i = 0; i < prompts.size(); i++) {
             generations.add(existingPrompts.get(i));
         }
@@ -185,14 +186,14 @@ public abstract class BaseLLM extends BaseLanguageModel {
         Map<String, Object> params = new HashMap<>() {{
             put("stop", stop);
         }};
-        Quadruple<Map<Integer, List<Generation>>, String, List<Integer>, List<String>> promptsQuadruple =
+        Quadruple<Map<Integer, List<? extends Generation>>, String, List<Integer>, List<String>> promptsQuadruple =
                 getPrompts(params, prompts);
-        Map<Integer, List<Generation>> existingPrompts = promptsQuadruple.getFirst();
+        Map<Integer, List<? extends Generation>> existingPrompts = promptsQuadruple.getFirst();
         String llmString = promptsQuadruple.getSecond();
         List<Integer> missingPromptIndexes = promptsQuadruple.getThird();
         List<String> missingPrompts = promptsQuadruple.getFourth();
 
-        Map<String, Object> llmOutput = new HashMap<>();
+        Map<String, Long> llmOutput = new HashMap<>();
         if (missingPrompts.size() > 0) {
             Map map = new HashMap<String, String>() {{
                 put("name", this.getClass().getSimpleName());
@@ -213,7 +214,7 @@ public abstract class BaseLLM extends BaseLanguageModel {
                 throw new RuntimeException(e);
             }
         }
-        List<List<Generation>> generations = new ArrayList<>();
+        List<List<? extends Generation>> generations = new ArrayList<>();
         for (int i = 0; i < prompts.size(); i++) {
             generations.add(existingPrompts.get(i));
         }

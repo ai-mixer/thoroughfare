@@ -1,4 +1,4 @@
-package top.aimixer.modules.models.llms;
+package top.aimixer.modules.models;
 
 import com.knuddels.jtokkit.api.ModelType;
 import top.aimixer.schema.models.LLMResult;

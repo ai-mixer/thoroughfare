@@ -155,7 +155,7 @@ public class BaseOpenAi extends OpenAi {
                 CompletionResult response = completionWithRetry();
                 choices.addAll(response.getChoices());
                 // Can't update token usage if streaming
-                tokenUsage = updateTokenUsage(response.getUsage());
+                updateTokenUsage(response.getUsage(), tokenUsage);
             }
         }
         return this.createLLMResult(choices, prompts, tokenUsage);
@@ -223,7 +223,7 @@ public class BaseOpenAi extends OpenAi {
 
     public LLMResult createLLMResult(List<CompletionChoice> choices, List<String> prompts,
                                      Map<String, Long> tokenUsage) {
-        List<List<Generation>> generations = new ArrayList<>();
+        List<List<? extends Generation>> generations = new ArrayList<>();
         for (int i = 0; i < prompts.size(); i++) {
             List<CompletionChoice> subChoices = choices.subList(i * this.n, (i + 1) * this.n);
             List<Generation> subGenerations = new ArrayList<>();

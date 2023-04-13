@@ -14,11 +14,6 @@ public abstract class BaseMessage {
         this.content = content;
     }
 
-    public BaseMessage(String content, Map<String, String> additionalKwArgs) {
-        this.content = content;
-        this.additionalKwArgs = additionalKwArgs;
-    }
-
     public String getContent() {
         return content;
     }
@@ -39,4 +34,12 @@ public abstract class BaseMessage {
      * Type of the message, used for serialization.
      */
     public abstract String getType();
+
+    @Override
+    public String toString() {
+        return "BaseMessage{" +
+                "content='" + content + '\'' +
+                ", additionalKwArgs=" + additionalKwArgs +
+                '}';
+    }
 }

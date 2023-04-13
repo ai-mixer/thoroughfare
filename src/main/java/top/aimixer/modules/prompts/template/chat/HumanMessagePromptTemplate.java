@@ -8,12 +8,12 @@ import java.util.Map;
 
 public class HumanMessagePromptTemplate extends BaseStringMessagePromptTemplate {
 
-    public HumanMessagePromptTemplate(StringPromptTemplate prompt, Map<String, String> additionalExample) {
-        super(prompt, additionalExample);
+    public HumanMessagePromptTemplate(StringPromptTemplate prompt) {
+        super(prompt);
     }
 
     public BaseMessage format(Map<String, String> additionalExample) {
         String text = getPrompt().format(additionalExample);
-        return new HumanMessage(text, getAdditionalExample());
+        return new HumanMessage(text);
     }
 }

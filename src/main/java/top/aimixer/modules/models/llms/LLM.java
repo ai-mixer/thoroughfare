@@ -30,7 +30,7 @@ public abstract class LLM extends BaseLLM {
     @Override
     public LLMResult generate(List<String> prompts, List<String> stop) {
         // TODO: add caching here.
-        List<List<Generation>> generations = new ArrayList<>();
+        List<List<? extends Generation>> generations = new ArrayList<>();
         for (String prompt : prompts) {
             String text = call(prompt, stop);
             generations.add(Collections.singletonList(new Generation(text, new HashMap<>())));
@@ -43,7 +43,7 @@ public abstract class LLM extends BaseLLM {
      */
     @Override
     public CompletableFuture<LLMResult> asyncGenerate(List<String> prompts, List<String> stop) {
-        List<List<Generation>> generations = new ArrayList<>();
+        List<List<? extends Generation>> generations = new ArrayList<>();
         for (String prompt : prompts) {
             try {
                 String text = asyncCall(prompt, stop).get();

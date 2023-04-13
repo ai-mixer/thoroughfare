@@ -1,7 +1,7 @@
 package top.aimixer.modules.prompts.template.chat;
 
-import top.aimixer.modules.prompts.template.prompt.PromptTemplate;
 import top.aimixer.modules.prompts.template.StringPromptTemplate;
+import top.aimixer.modules.prompts.template.prompt.PromptTemplate;
 import top.aimixer.schema.prompts.BaseMessage;
 
 import java.lang.reflect.InvocationTargetException;
@@ -10,11 +10,8 @@ import java.util.Map;
 
 public abstract class BaseStringMessagePromptTemplate extends BaseMessagePromptTemplate {
     private StringPromptTemplate prompt;
-    private Map<String, String> additionalExample;
-
-    public BaseStringMessagePromptTemplate(StringPromptTemplate prompt, Map<String, String> additionalExample) {
+    public BaseStringMessagePromptTemplate(StringPromptTemplate prompt) {
         this.prompt = prompt;
-        this.additionalExample = additionalExample;
     }
 
     public static BaseMessagePromptTemplate fromTemplate(Class<? extends BaseStringMessagePromptTemplate> clazz,
@@ -46,7 +43,4 @@ public abstract class BaseStringMessagePromptTemplate extends BaseMessagePromptT
         return prompt;
     }
 
-    public Map<String, String> getAdditionalExample() {
-        return additionalExample;
-    }
 }

@@ -125,12 +125,16 @@ public abstract class OpenAi extends BaseLLM {
      * @param usage
      * @return
      */
-    protected static Map<String, Long> updateTokenUsage(Usage usage) {
-        Map<String, Long> tokenUsageMap = new HashMap<>();
-        tokenUsageMap.computeIfPresent("completion_tokens", (key, val) -> val + usage.getCompletionTokens());
-        tokenUsageMap.computeIfPresent("prompt_tokens", (key, val) -> val + usage.getPromptTokens());
-        tokenUsageMap.computeIfPresent("total_tokens", (key, val) -> val + usage.getTotalTokens());
-        return tokenUsageMap;
+    protected static void updateTokenUsage(Usage usage, Map<String, Long> tokenUsageMap) {
+        long completionTokens = tokenUsageMap.containsKey("completion_tokens") ?
+                tokenUsageMap.computeIfPresent("completion_tokens", (key, val) -> val + usage.getCompletionTokens()) :
+                tokenUsageMap.put("completion_tokens", usage.getCompletionTokens());
+        long promptTokens = tokenUsageMap.containsKey("prompt_tokens") ?
+                tokenUsageMap.computeIfPresent("prompt_tokens", (key, val) -> val + usage.getPromptTokens()) :
+                tokenUsageMap.put("prompt_tokens", usage.getPromptTokens());
+        long totalTokens = tokenUsageMap.containsKey("total_tokens") ?
+                tokenUsageMap.computeIfPresent("total_tokens", (key, val) -> val + usage.getPromptTokens()) :
+                tokenUsageMap.put("total_tokens", usage.getTotalTokens());
     }
 
     protected abstract void buildOpenAIRequest();

@@ -1,7 +1,5 @@
 package top.aimixer.schema.prompts;
 
-import java.util.Map;
-
 /**
  * Type of message that is spoken by the AI.
  */
@@ -9,10 +7,6 @@ public class AIMessage extends BaseMessage {
 
     public AIMessage(String content) {
         super(content);
-    }
-
-    public AIMessage(String content, Map<String, String> additionalExample) {
-        super(content, additionalExample);
     }
 
     /**
@@ -24,4 +18,5 @@ public class AIMessage extends BaseMessage {
     public String getType() {
         return "ai";
     }
+
 }
