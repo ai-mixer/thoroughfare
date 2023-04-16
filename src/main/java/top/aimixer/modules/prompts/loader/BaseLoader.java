@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
  */
 public class BaseLoader {
 
-    private static final String URL_BASE = "https://raw.githubusercontent.com/hwchase17/langchain-hub/master/prompts/";
+    private static final String URL_BASE = "https://raw.xxxx.com/xxxx/xxx-hub/";
     private static final Logger logger = Logger.getLogger(BaseLoader.class.getName());
 
     private static Map<String, Function<Map<String, Object>, BasePromptTemplate>> TYPE_TO_LOADER_MAP = new HashMap<>() {{

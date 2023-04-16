@@ -15,7 +15,7 @@ public class ChatOpenAiTest {
 
     public static void main(String[] args) {
         Map<String, Object> values = new HashMap<>();
-        values.put("openai_api_key", "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");
+        values.put("openai_api_key", "sk-xxxx");
 //        List<BaseMessage> messageList = new ArrayList<>() {{
 //            add(new HumanMessage("Translate this sentence from English to French. I love programming."));
 //        }};
